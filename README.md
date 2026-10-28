@@ -104,7 +104,7 @@ When `USE_REAL_POPULATION = True`, population and vulnerability data cover the *
 3. Select an environment that uses **Runtime 1.3** with the **Native Execution Engine turned off**.
 4. In the parameters cell, set `OUTBREAK_NAME`, `OUTBREAK_LAT` and `OUTBREAK_LON`.
 5. Select **Run all**. With the default settings (150 km radius, H3 resolution 7, 30 days), expect roughly 14,000 cells.
-6. Find the outputs in the Lakehouse under `Files/zombie_outbreak/run_id=<RUN_ID>/`.
+6. Find the outputs in the Lakehouse under `/zombie_outbreak/run_id=<RUN_ID>/`.
 7. Optionally, set `PUBLISH_TO_AGOL = True` and fill in the `AGOL_*` parameters to publish hosted feature layers.
 
 ---
@@ -229,7 +229,7 @@ Weights must be non-negative and must name SVI `EPL_` fields. Each index is a we
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `RANDOM_SEED` | int | `42` | Seed for the random number generators. Spark's random functions depend on data partitioning, so results are repeatable on the same cluster configuration but may differ slightly across configurations. |
-| `OUTPUT_ROOT` | string | `"Files/zombie_outbreak"` | Root output folder, relative to the attached Lakehouse. |
+| `OUTPUT_ROOT` | string | `"Files/"` | Root output folder, relative to the attached Lakehouse. |
 | `RUN_ID` | string | `""` | Identifier for this run. Blank generates `YYYYMMDDTHHMMSS_xxxxxx`. Set it to an existing run's ID to republish that run with section 10. |
 | `PARTITION_REGION_RES` | int | `4` | Coarse H3 resolution used to group rows spatially within files. Must be lower than `H3_RESOLUTION`. |
 | `TARGET_FILES_PER_DAY` | int | `4` | Approximate number of files written per day partition of `cells_daily`. |
