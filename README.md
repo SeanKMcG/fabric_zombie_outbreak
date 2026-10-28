@@ -1,3 +1,5 @@
+![Zombie Outbreak Spatial Spread Simulator](./resources/fabric_zombie_outbreak_banner.svg)
+
 # Zombie Outbreak Spatial Spread Simulator
 
 A PySpark notebook for **Microsoft Fabric** that uses **ArcGIS GeoAnalytics for Microsoft Fabric** to simulate how a zombie outbreak spreads geographically from a user-defined origin. The study area is tiled with H3 hexagons. Each cell gets a human population from US census tracts and a vulnerability profile from the CDC/ATSDR Social Vulnerability Index (SVI). The outbreak is then stepped forward day by day.
