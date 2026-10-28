@@ -2,7 +2,7 @@
 
 A PySpark notebook for **Microsoft Fabric** that uses **ArcGIS GeoAnalytics for Microsoft Fabric** to simulate how a zombie outbreak spreads geographically from a user-defined origin. The study area is tiled with H3 hexagons. Each cell gets a human population from US census tracts and a vulnerability profile from the CDC/ATSDR Social Vulnerability Index (SVI). The outbreak is then stepped forward day by day.
 
-Results are written to OneLake as spatially clustered **GeoParquet**. They can optionally be published to **ArcGIS Online** (or ArcGIS Enterprise) as hosted feature layers.
+Results are written to OneLake as spatially clustered **GeoParquet**. They can optionally be published to **ArcGIS Online or ArcGIS Enterprise** as hosted feature layers.
 
 > This is a teaching and demonstration project. The epidemiology is deliberately simple and the numbers are not predictions of anything real.
 
@@ -29,7 +29,7 @@ Results are written to OneLake as spatially clustered **GeoParquet**. They can o
 1. **Origin.** A point is created from `OUTBREAK_LAT` and `OUTBREAK_LON`.
 2. **Grid.** Every H3 cell at `H3_RESOLUTION` that touches a geodesic circle of `STUDY_RADIUS_KM` around the origin is generated.
 3. **Population and vulnerability.** Census tracts and SVI tracts are read from public ArcGIS feature services and joined on tract FIPS code. Tract population is split across H3 cells by area of overlap (areal interpolation).
-4. **Neighbour graph.** Each cell is linked to every cell whose centre lies within `NEIGHBOR_RADIUS_KM`, with weights that decay with distance.
+4. **Neighbour graph.** Each cell is linked to every cell whose center lies within `NEIGHBOR_RADIUS_KM`, with weights that decay with distance.
 5. **Daily simulation.** For `SIM_DAYS` days:
    - zombies wander to neighbouring cells;
    - small fractional arrivals are randomly rounded to whole zombies, so the outbreak front advances at a realistic pace;
@@ -54,7 +54,7 @@ Results are written to OneLake as spatially clustered **GeoParquet**. They can o
 | 1. Setup and validation | Imports, parameter checks and run ID generation. |
 | 2. Origin and H3 grid | Builds the study area and hexagon grid. |
 | 3. Population and vulnerability | Reads tracts and SVI, computes indices, runs areal interpolation. |
-| 4. Neighbour graph | Spatial join of cell centres to build movement edges. |
+| 4. Neighbour graph | Spatial join of cell centers to build movement edges. |
 | 5. Simulation | Daily movement and infection loop. |
 | 6. Output tables | Daily cell states, arrival times and outbreak fronts. |
 | 7. GeoParquet write | Spatially clustered GeoParquet with bounding-box columns. |
@@ -104,7 +104,7 @@ When `USE_REAL_POPULATION = True`, population and vulnerability data cover the *
 3. Select an environment that uses **Runtime 1.3** with the **Native Execution Engine turned off**.
 4. In the parameters cell, set `OUTBREAK_NAME`, `OUTBREAK_LAT` and `OUTBREAK_LON`.
 5. Select **Run all**. With the default settings (150 km radius, H3 resolution 7, 30 days), expect roughly 14,000 cells.
-6. Find the outputs in the Lakehouse under `Files/zombie_outbreak/run_id=<RUN_ID>/`.
+6. Find the outputs in the Lakehouse under `/zombie_outbreak/run_id=<RUN_ID>/`.
 7. Optionally, set `PUBLISH_TO_AGOL = True` and fill in the `AGOL_*` parameters to publish hosted feature layers.
 
 ---
@@ -117,7 +117,7 @@ Because the parameters cell is tagged, any parameter can be overridden at run ti
 notebookutils.notebook.run(
     "Zombie_Outbreak_Spread", 3600,
     {
-        "OUTBREAK_NAME": "350 New York St, Redlands, CA",
+        "OUTBREAK_NAME": "380 New York St, Redlands, CA",
         "OUTBREAK_LAT": 34.0564,
         "OUTBREAK_LON": -117.1956,
         "SIM_DAYS": 45,
@@ -155,7 +155,7 @@ All parameters live in the notebook's parameters cell. Rates are **per simulated
 | `SIM_DAYS` | int | `30` | Number of days to simulate. Day 0 (the initial state) is also written, so outputs contain `SIM_DAYS + 1` days. |
 | `H3_RESOLUTION` | int (0–10) | `7` | H3 grid resolution. Resolution 7 cells average about 5.2 km²; resolution 8 cells average about 0.74 km², giving roughly seven times as many cells. Higher resolutions increase runtime sharply. |
 | `STUDY_RADIUS_KM` | float | `150` | Radius of the geodesic circle around the origin. Every H3 cell that touches it is simulated. Zombies cannot spread beyond this area. |
-| `NEIGHBOR_RADIUS_KM` | float | `6.0` | Cells whose centres are within this distance of each other can exchange zombies. Larger values allow longer daily journeys and create more neighbour links. Should be at least about twice the cell spacing (about 2.4 km at resolution 7). |
+| `NEIGHBOR_RADIUS_KM` | float | `6.0` | Cells whose centers are within this distance of each other can exchange zombies. Larger values allow longer daily journeys and create more neighbour links. Should be at least about twice the cell spacing (about 2.4 km at resolution 7). |
 
 ### Epidemiology
 
@@ -229,7 +229,7 @@ Weights must be non-negative and must name SVI `EPL_` fields. Each index is a we
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `RANDOM_SEED` | int | `42` | Seed for the random number generators. Spark's random functions depend on data partitioning, so results are repeatable on the same cluster configuration but may differ slightly across configurations. |
-| `OUTPUT_ROOT` | string | `"Files/zombie_outbreak"` | Root output folder, relative to the attached Lakehouse. |
+| `OUTPUT_ROOT` | string | `"Files/"` | Root output folder, relative to the attached Lakehouse. |
 | `RUN_ID` | string | `""` | Identifier for this run. Blank generates `YYYYMMDDTHHMMSS_xxxxxx`. Set it to an existing run's ID to republish that run with section 10. |
 | `PARTITION_REGION_RES` | int | `4` | Coarse H3 resolution used to group rows spatially within files. Must be lower than `H3_RESOLUTION`. |
 | `TARGET_FILES_PER_DAY` | int | `4` | Approximate number of files written per day partition of `cells_daily`. |
@@ -288,13 +288,13 @@ These appear in `cells_daily`, `arrival` and `grid_population_vulnerability`.
 | `density_km2` | double | `population / area_km2`. |
 | `county`, `state` | string | County and state of the tract covering most of the cell's population. |
 | `main_tract_fips` | string | 11-digit FIPS code of that tract. |
-| `dist_from_origin_km` | double | Geodesic distance from the cell centre to the origin. |
+| `dist_from_origin_km` | double | Geodesic distance from the cell center to the origin. |
 | `contact_idx` | double | Population-weighted contact index (0–1). Null when no SVI data is available. |
 | `escape_idx` | double | Population-weighted escape/defence index (0–1). |
 | `svi_overall` | double | Population-weighted SVI `RPL_THEMES`, included for reference. |
 | `beta_mult` | double | Multiplier applied to `INFECTION_RATE` in this cell. |
 | `alpha_mult` | double | Multiplier applied to `ZOMBIE_KILL_RATE` in this cell. |
-| `center_wkt` | string | Cell centre point as WKT. |
+| `center_wkt` | string | Cell center point as WKT. |
 | `bbox_xmin` … `bbox_ymax` | double | Bounding box of the row's geometry. |
 | `run_id` | string | Run identifier. |
 
@@ -324,8 +324,8 @@ These appear in `cells_daily`, `arrival` and `grid_population_vulnerability`.
 |---|---|---|
 | `day`, `timestamp` | int, timestamp | Simulation day and date. |
 | `front_geom` | polygon | Union of all infested cells that day. |
-| `hull_wkt` | string | Convex hull of infested cell centres, as WKT. |
-| `mean_center_wkt` | string | Mean centre of infested cells, as WKT. |
+| `hull_wkt` | string | Convex hull of infested cell centers, as WKT. |
+| `mean_center_wkt` | string | Mean center of infested cells, as WKT. |
 | `infested_cells` | long | Number of infested cells. |
 | `total_zombies` | double | Sum of Z across infested cells. |
 | `zombies_destroyed` | double | Sum of R across infested cells. |
