@@ -117,7 +117,7 @@ Because the parameters cell is tagged, any parameter can be overridden at run ti
 notebookutils.notebook.run(
     "Zombie_Outbreak_Spread", 3600,
     {
-        "OUTBREAK_NAME": "350 New York St, Redlands, CA",
+        "OUTBREAK_NAME": "380 New York St, Redlands, CA",
         "OUTBREAK_LAT": 34.0564,
         "OUTBREAK_LON": -117.1956,
         "SIM_DAYS": 45,
