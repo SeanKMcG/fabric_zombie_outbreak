@@ -2,7 +2,7 @@
 
 A PySpark notebook for **Microsoft Fabric** that uses **ArcGIS GeoAnalytics for Microsoft Fabric** to simulate how a zombie outbreak spreads geographically from a user-defined origin. The study area is tiled with H3 hexagons. Each cell gets a human population from US census tracts and a vulnerability profile from the CDC/ATSDR Social Vulnerability Index (SVI). The outbreak is then stepped forward day by day.
 
-Results are written to OneLake as spatially clustered **GeoParquet**. They can optionally be published to **ArcGIS Online** (or ArcGIS Enterprise) as hosted feature layers.
+Results are written to OneLake as spatially clustered **GeoParquet**. They can optionally be published to **ArcGIS Online or ArcGIS Enterprise** as hosted feature layers.
 
 > This is a teaching and demonstration project. The epidemiology is deliberately simple and the numbers are not predictions of anything real.
 
